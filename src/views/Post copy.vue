@@ -27,7 +27,7 @@ import { onMounted, ref } from 'vue';
         text-decoration: underline;
     }
     p {
-        font-size: 12px;
+        font-size: 14px;
         color: #3b3a3a;
         text-align: justify;
     }

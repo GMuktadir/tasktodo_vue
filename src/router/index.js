@@ -3,6 +3,7 @@ import About from '../views/About.vue'
 import Profile from '../views/Profile.vue'
 import Post from '../views/Post.vue'
 import { createRouter,createWebHistory } from "vue-router"
+import Registration from '@/views/registration.vue'
 
 const routes = [
     {
@@ -24,8 +25,14 @@ const routes = [
         path:'/post',
         name:'Post',
         component: Post
+    },
+    {
+        path:'/registration',
+        name:'Registration',
+        component: Registration
     }
 ]
+
 const router = createRouter({
     history: createWebHistory(),
     routes
