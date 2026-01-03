@@ -1,11 +1,14 @@
 <script setup>
     import { ref, reactive } from 'vue';
+    import {toast} from 'vue3-toastify';
+
     const username = ref('');
     const email = ref('');  
     const contact = ref('');
     const password = ref('');   
     const confirmPassword = ref('');
     const userImage = ref('');
+    const userImagePreview = ref('');
 
     const errors = reactive({
         username: '',
@@ -16,26 +19,88 @@
         userImage: ''
     });
 
+
 function handleRegistration() {
   if(!validation()){
-    alert('Please fix the errors before submitting the form.');
+    toast.error('Please fix the errors before submitting.', {
+        position: "top-right",
+        autoClose: 3000
+    });
+  }  else{
+    // Simulate successful registration
+    toast.success('Registration successful!', {
+        position: "top-right",
+        autoClose: 3000
+    });
   }
-
-
+//submission to api 
+const user ={
+    username: username.value,
+    email: email.value,
+    contact: contact.value,
+    password: password.value,
+    userImage: userImage.value
 }
+saveLocalStorage(user); 
+}
+
+function saveLocalStorage(user){
+    const previousDataRaw = localStorage.getItem('users');
+    const parseData = previousDataRaw ? JSON.parse(previousDataRaw) : [];
+    parseData.push(user);
+    localStorage.setItem('users', JSON.stringify(parseData));
+    toast.success('User data saved locally!', {
+        position: "top-left",
+        autoClose: 2000
+    });
+}
+
 function validation(){
     Object.keys(errors).forEach(key => delete errors[key])
 
     if(!username.value.trim())  errors.username = 'Username is required.'
     if(!email.value.trim())  errors.email = 'Email is required.' 
     if(!contact.value.trim())  errors.contact = 'Contact is required.' 
-    if(!password.value.trim())  errors.password = 'Password is required.'    
-    if(!confirmPassword.value.trim())  errors.confirmPassword = 'Confirm Password is required.' 
+    if(!password.value)  errors.password = 'Password is required.'    
+    if(!confirmPassword.value)  errors.confirmPassword = 'Confirm Password is required.' 
     if(password.value !== confirmPassword.value) errors.confirmPassword = 'Passwords do not match.', errors.password = 'Passwords do not match.'
-    // if(!userImage.value) errors.userImage = 'User image is required.'
+    if(!userImage.value) errors.userImage = 'User image is required.'
 
-    return Object.keys(errors).length === 0;
+    return Object.keys(errors).length === 0
 } 
+function imageUpload(event){
+    const myimage = event.target.files && event.target.files[0];
+    if(!myimage){
+        userImage.value = '';
+        userImagePreview.value = '';
+        return
+    }
+    if(myimage.type.startsWith('image/')){
+        userImage.value = myimage;
+    } else {
+        userImage.value = '';
+        userImagePreview.value = '';
+        toast.error('Please select a valid image file.', {
+            position: "top-right",
+            autoClose: 3000
+        });
+    }
+    const maxSizeInBytes = 1 * 1024 * 1024; // 2MB
+     if(myimage.size>maxSizeInBytes){
+        errors.userImage = 'Image size should not exceed 1MB.'
+        userImage.value = ''
+        userImagePreview.value = '';
+    }
+    if(userImage.value){
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            userImagePreview.value = e.target.result;
+        };
+        reader.readAsDataURL(userImage.value);
+    } else {
+        userImagePreview.value = '';
+    }
+}
 </script>
 
 <template>
@@ -79,9 +144,17 @@ function validation(){
                                                     </div>
                                                     <div class="mb-4">
                                                         <label for="userImage" class="form-label">Image</label>
-                                                        <input type="file" class="form-control" id="userImage" @change="fileUpload">
+                                                        <input type="file" class="form-control" id="userImage" @change="imageUpload">
+                                                         <small class="text-danger" v-if="errors.userImage">{{ errors.userImage }}</small>
                                                     </div>
-                                                    <button type="submit" class="btn btn-primary">Register</button>
+                                                    <div v-if="userImagePreview" class="card" style="width: 18rem;">
+                                                        <img :src="userImagePreview" class="card-img-top" alt="...">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">Image Preview</h5>
+                                                            
+                                                        </div>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-info">Register</button>
                                                 </form>
                                 </div>
                             </div>
