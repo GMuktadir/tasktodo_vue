@@ -19,14 +19,12 @@ export const useAuthStore = defineStore("auth", {
         this.sending = true;
       try {
         const response = await http.post("/auth/login", credentials);
-        console.log(response);
-        // const { user, token } = response.data;
-        // this.user = user;
-        // this.token = token;
-        // localStorage.setItem("access_token", token);
-        // localStorage.setItem("user", JSON.stringify(user));
+        
+        if(response.data.status === 'success'){
+            toast.success(response.data.message);
+        }
       } catch (error) {
-        // console.error("Login failed:", error);
+        console.log(error);
         const message = error.response?.data?.message
         toast.error(message);
       } finally {
