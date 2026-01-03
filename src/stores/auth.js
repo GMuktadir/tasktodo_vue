@@ -1,6 +1,8 @@
+
 import { defineStore } from "pinia";
 import http from "@/http/http.js";
 import { toast } from "vue3-toastify";
+import router from "@/router";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -19,9 +21,22 @@ export const useAuthStore = defineStore("auth", {
         this.sending = true;
       try {
         const response = await http.post("/auth/login", credentials);
-        
+
         if(response.data.status === 'success'){
             toast.success(response.data.message);
+
+            this.user =response?.data?.data?.user;
+            this.access_token = response?.data?.data?.access_token;
+            
+            localStorage.setItem("access_token", this.access_token);
+            localStorage.setItem("user", JSON.stringify(this.user)); // object to string
+
+            // Redirect to Dashboard or another page if needed
+         
+            setTimeout(() => {
+                router.push('/admin/dashboard')
+            },3000);
+           
         }
       } catch (error) {
         console.log(error);

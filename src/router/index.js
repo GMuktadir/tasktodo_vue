@@ -5,6 +5,8 @@ import Post from '../views/Post.vue'
 import { createRouter,createWebHistory } from "vue-router"
 import Registration from '../views/Registration.vue'
 import Login from '../views/Login.vue'
+import { useAuthStore } from '@/stores/auth'
+import Dashboard from '@/views/admin/Dashboard.vue';
 
 const routes = [
     {
@@ -36,7 +38,13 @@ const routes = [
         path:'/login',
         name:'Login',
         component: Login
-    }
+    },
+    {
+        path:'/admin/dashboard',
+        name:'Dashboard',
+        component: Dashboard,
+        meta: { requireAuth: true }
+    },
 
 ]
 
@@ -44,4 +52,14 @@ const router = createRouter({
     history: createWebHistory(),
     routes
 })
+//checking auth for protected routes
+router.beforeEach((to, from, next) => {
+    // const isAuthenticated = localStorage.getItem('access_token') ? true : false;
+    const authStore = useAuthStore();
+    if (to.meta.requireAuth && !authStore.isAuthenticated) {
+        next('/login');
+    } else {
+        next();
+    }
+});
 export default router
